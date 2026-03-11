@@ -1,0 +1,58 @@
+name: Fast-Forward Merge
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  fast_forward:
+    permissions:
+      contents: write
+      pull-requests: write
+    # Only run if:
+    # 1. The comment body is exactly "/fast-forward"
+    # 2. It is on a Pull Request
+    # 3. The author is the OWNER, a MEMBER, or a COLLABORATOR (has write access)
+    if: |
+      github.event.comment.body == '/fast-forward' &&
+      github.event.issue.pull_request &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify CI Status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          - name: Verify CI Status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fetch the PR data once to avoid multiple API calls
+          PR_JSON=$(gh pr view ${{ github.event.issue.number }} --json statusCheckRollup)
+
+          # 1. Guarded failure check: select non-passing conclusions from the rollup array
+          FAILURES=$(echo "$PR_JSON" | jq -r '(.statusCheckRollup // [])[] | select(.status == "COMPLETED") | .conclusion' \
+            | grep -vE '^(success|neutral|skipped)$' || true)
+
+          # 2. Guarded pending check: look for any status that is NOT 'COMPLETED'
+          PENDING=$(echo "$PR_JSON" | jq -r '(.statusCheckRollup // [])[] | select(.status != "COMPLETED") | .status' || true)
+
+          if [[ -n "$FAILURES" ]]; then
+            echo "❌ CI has failed checks: $FAILURES"
+            exit 1
+          fi
+
+          if [[ -n "$PENDING" ]]; then
+            echo "⏳ CI is still running. Please wait for checks to finish."
+            exit 1
+          fi
+
+          echo "✅ All checks passed or are neutral. Proceeding with fast-forward."
+
+      - name: Fast Forward PR
+        uses: fast-forward-github-action/fast-forward@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: require a specific label or state
+          success_message: "Successfully fast-forwarded! 🚀"
+          failure_message: "Failed to fast-forward. Is the branch up to date?"
