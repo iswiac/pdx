@@ -9,21 +9,17 @@ jobs:
       contents: write
       pull-requests: write
     # Only run if:
-    # 1. The comment body is exactly "/fast-forward"
+    # 1. The comment body is exactly "/fast-forward" (with optional trailing newline from UI)
     # 2. It is on a Pull Request
     # 3. The author is the OWNER, a MEMBER, or a COLLABORATOR (has write access)
     if: |
-      github.event.comment.body == '/fast-forward' &&
+      (github.event.comment.body == '/fast-forward' || github.event.comment.body == '/fast-forward\n') &&
       github.event.issue.pull_request &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
 
     runs-on: ubuntu-latest
     steps:
       - name: Verify CI Status
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          - name: Verify CI Status
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
