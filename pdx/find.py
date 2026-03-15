@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 
-PHOTOS_EXTS = ("jpeg", "jpg", "png")
+PHOTOS_EXTS = ("heic", "heif", "jpeg", "jpg", "png")
 
 
 class Finder:
