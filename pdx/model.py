@@ -7,9 +7,12 @@ import os
 import torch
 
 from collections.abc import Callable
-from typing import cast
+from typing import Any, cast
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from PIL import Image
+from PIL import Image, ImageFile
+
+# tolerate truncated JPEGs to avoid `OSError: broken data stream when reading image file`
+cast(Any, ImageFile).LOAD_TRUNCATED_IMAGES = True
 
 # add support for HEIC/HEIF images if available
 try:
