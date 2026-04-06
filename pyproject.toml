@@ -12,6 +12,9 @@ dependencies = [
     "torch",
     "torchvision",
     "tqdm",
+    "requests",          # Added for Ollama API
+    "reverse_geocoder",  # Added for offline GPS
+    "pyyaml"             # Added to handle config.yaml parsing
 ]
 
 [project.optional-dependencies]

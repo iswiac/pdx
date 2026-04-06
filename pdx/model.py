@@ -86,9 +86,13 @@ class Model:
             return tensor.cpu().numpy()
 
     def prompt_to_vector(self, prompt):
+        """Fixed: Moves tokens to GPU and results to CPU."""
         with torch.no_grad():
-            text = self._tokenizer([prompt])
+            # Move text tokens to the device (GPU)
+            text = self._tokenizer([prompt]).to(self._device)
             encode_text_fn = cast(
                 Callable[..., torch.Tensor], getattr(self._model, "encode_text")
             )
-            return encode_text_fn(text).numpy().flatten().tolist()
+            # Move the resulting vector back to CPU
+            vector = encode_text_fn(text)
+            return vector.cpu().numpy().flatten().tolist()

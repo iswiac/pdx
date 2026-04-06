@@ -29,6 +29,11 @@ pdx index -c private /path/to/private_photos    # create or extend the `private`
 pdx erase -c private                            # delete the `private` collection
 ```
 
+## Organize photos
+```sh
+pdx organize -c private /path/to/organized_folder   # Use AI and EXIF metadata to group photos into a structured directory tree.
+```
+
 ## Query photos
 
 ```sh

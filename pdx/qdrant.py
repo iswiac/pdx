@@ -44,18 +44,25 @@ class VDB:
     def upsert(self, **kwargs) -> None:
         self.client.upsert(collection_name=self.cname, **kwargs)
 
-    def upsert_batch(self, vectors, paths) -> None:
+    def upsert_batch(self, vectors, paths, metadatas=None) -> None:
         size = len(paths)
         assert size == len(vectors)
 
         points = []
         for i in range(size):
             self.point_id += 1
+            # Default payload contains the path
+            payload = {"path": paths[i]}
+
+            # Merge additional metadata (date, location) if provided
+            if metadatas and i < len(metadatas):
+                payload.update(metadatas[i])
+
             points.append(
                 PointStruct(
                     id=self.point_id,
                     vector=vectors[i],
-                    payload={"path": paths[i]},
+                    payload=payload,
                 )
             )
         self.upsert(points=points)
@@ -64,9 +71,20 @@ class VDB:
         return self.client.query_points(collection_name=self.cname, **kwargs)
 
     def query_photos(self, query, limit: int, min_score: float = 0.0) -> list[tuple]:
+        """Returns (score, path, description) for each result."""
         response = self.query_points(query=query, limit=limit, with_payload=True)
-        return [
-            (res.score, res.payload["path"])
-            for res in response.points
-            if min_score <= res.score
-        ]
+        results = []
+        for res in response.points:
+            if res.score >= min_score:
+                # Catch the AI description from the payload
+                desc = res.payload.get("description", "[No description yet]")
+                results.append((res.score, res.payload["path"], desc))
+        return results
+
+    def update_payload(self, point_id, metadata: dict) -> None:
+        """Saves new metadata (like AI descriptions) to a specific point."""
+        self.client.set_payload(
+            collection_name=self.cname,
+            payload=metadata,
+            points=[point_id],
+        )
