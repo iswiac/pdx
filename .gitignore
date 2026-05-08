@@ -1,2 +1,9 @@
+# Configuration and Personal Data
+config.yaml
+family_context.txt
+history_cache.json
+
+# Python artifacts
+.venv/
 /pdx.egg-info/
 __pycache__/

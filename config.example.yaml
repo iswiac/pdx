@@ -1,0 +1,22 @@
+# PDX Configuration Template
+# Copy this file to config.yaml and adjust for your setup.
+
+ai:
+  language: en  # cs or en
+  ollama_url: "http://localhost:11434/api/chat"
+  model_name: "gemma4:26b"
+
+location:
+  # Add names of cities or districts you consider "Home"
+  home_names:
+    - "City"
+
+faces:
+  reference_dir: "faces"
+  similarity_threshold: 0.4
+  name_map:                       # optional: folder name -> display name
+    john: "John"
+
+storage:
+  context_file: "family_context.txt"
+  history_file: "folder_history.json"

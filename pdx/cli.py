@@ -55,6 +55,23 @@ def index(collection: str, force_cpu: bool, real_path: bool, paths: tuple[str, .
     idx = Indexer(force_cpu=force_cpu)
     idx.index_photos(collection, photos)
 
+@pdx.command()
+@click.argument("target", type=click.Path())
+@click.option("--collection", "-c", default="default", help="Qdrant collection name.")
+@click.option("--config", "-f", default="config.yaml", help="Path to config file.")
+def organize(target: str, collection: str, config: str):
+    """Organize indexed photos into a structured directory tree."""
+    from pdx.organizer import Organizer
+    logging.basicConfig(level=logging.INFO)
+    config_path = os.path.realpath(config)
+    if not os.path.isfile(config_path):
+        raise click.BadParameter(
+            f"Config file not found: {config}\n"
+            "Copy config.example.yaml to config.yaml and adjust it for your setup.",
+            param_hint="'--config'",
+        )
+    org = Organizer(collection, target, config_path=config_path)
+    org.organize()
 
 @pdx.command()
 @click.argument("query_args", nargs=-1)

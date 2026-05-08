@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 PHOTOS_EXTS = ("heic", "heif", "jpeg", "jpg", "png")
+VIDEO_EXTS = ("mp4", "mov", "avi", "mkv", "mts", "m4v")
 
 
 class Finder:
@@ -42,8 +43,11 @@ class Finder:
 
     def handle_path(self, path: Path) -> None:
         if path.is_file():
-            # take regular files as photos to index
-            self._photos.append(str(path))
+            ext = path.suffix[1:].lower() if path.suffix else ""
+            if ext in PHOTOS_EXTS:
+                self._photos.append(str(path))
+            else:
+                logging.warning(f"skipping unsupported file: {path}")
         elif path.is_dir():
             # traverse directories recursively and look for files matching PHOTOS_EXTS
             self.find_photos_in_dir(path)
@@ -59,3 +63,14 @@ def find_photos(paths: tuple[str, ...], include_symlinks: bool = False) -> list[
         finder.handle_path(path)
 
     return finder.photos
+
+
+def find_videos(directories: set[Path]) -> list[Path]:
+    videos = []
+    for d in directories:
+        if not d.is_dir():
+            continue
+        for f in d.iterdir():
+            if f.is_file() and f.suffix and f.suffix[1:].lower() in VIDEO_EXTS:
+                videos.append(f)
+    return videos

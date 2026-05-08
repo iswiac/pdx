@@ -37,14 +37,14 @@ class QueryHandler:
 
         if self.viewer is None:
             # print the results to stdout
-            for i, (score, path) in enumerate(results, start=1):
-                print(f"{i:04}\t{score:.6f}\t{path}")
+            for i, (score, path, desc) in enumerate(results, start=1):
+                print(f"{i:04}\t{score:.6f}\t[{desc}]\t{path}")
             return
 
         # create symlinks in a temp directory and run a viewer on it
         temp_dir = tempfile.mkdtemp()
         try:
-            for i, (score, path) in enumerate(results, start=1):
+            for i, (score, path, desc) in enumerate(results, start=1):
                 path_part = path.replace("/", "-").lstrip("-")
                 linkname = f"{i:04}-{score:.6f}-{path_part}"
                 dest = os.path.join(temp_dir, linkname)
