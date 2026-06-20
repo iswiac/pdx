@@ -6,6 +6,7 @@
 - [Ollama](https://ollama.com) with a vision-language model pulled (e.g. `ollama pull gemma4:26b`)
 - [Podman](https://podman.io) for running Qdrant
 - `exiftool` for EXIF/GPS metadata extraction (`sudo apt install -y libimage-exiftool-perl`)
+- `libGL` for face recognition (`sudo apt install -y libgl1` on Debian/Ubuntu, `sudo dnf install -y mesa-libGL` on Fedora) — optional, only needed if using the `faces` config
 
 See [README-Windows.md](README-Windows.md) for Windows/WSL-specific setup.
 
